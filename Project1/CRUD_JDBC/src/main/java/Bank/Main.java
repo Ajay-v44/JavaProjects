@@ -1,6 +1,8 @@
 package Bank;
 
+import Bank.Banking.Account;
 import Bank.Config.Configurations;
+import Bank.Schemas.CreateAccount;
 
 public class Main {
     public static void main(String[] args) {
@@ -19,6 +21,8 @@ public class Main {
         try {
             //    Load Conf
             Configurations.initializeConf();
+            Account obj=new Account();
+            obj.createAccount(new CreateAccount("Ajay","Ajay v","vajay@gmail.com","891275"));
         } catch (Exception exception) {
             System.out.println(exception);
         }
