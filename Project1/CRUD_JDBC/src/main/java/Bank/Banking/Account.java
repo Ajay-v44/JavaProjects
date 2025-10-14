@@ -1,6 +1,8 @@
 package Bank.Banking;
 
 import Bank.Banking.Constants.AccountType;
+import Bank.Banking.Constants.SQLQUERIES;
+import Bank.Banking.Constants.TRANSACTIONTYPE;
 import Bank.DB.DBConfig;
 import Bank.Schemas.CreateAccount;
 import Bank.util.UniqueNumberGenerator;
@@ -9,6 +11,7 @@ import java.sql.*;
 
 public class Account {
     Long userId;
+    String userName;
 
     String checkUser = "SELECT user_id,username FROM users WHERE phone = ?;";
 
@@ -44,6 +47,7 @@ public class Account {
                 ResultSet res = st.executeQuery();
                 if (res.next()) {
                     userId = res.getLong(1);
+                    userName = input.getName();
                     System.out.println("Created User With Id " + userId);
                 } else {
                     throw new SQLException("Failed To create User");
@@ -73,6 +77,7 @@ public class Account {
                 ResultSet result = stmt.executeQuery();
                 if (result.next()) {
                     userId = result.getLong(1);
+                    userName = result.getString("username");
                     System.out.println("Welcome Mr/Mrs " + result.getString("username"));
                     return true;
                 } else {
@@ -86,10 +91,72 @@ public class Account {
         }
     }
 
-    public void makeDeposit(){
-        if(userId==null){
+    public float getBalance() {
+        try (Connection con = DBConfig.getDBConn()) {
+            PreparedStatement stmt = con.prepareStatement(SQLQUERIES.CHECKBALANCE.getQuery());
+            stmt.setLong(1, userId);
+            ResultSet result = stmt.executeQuery();
+            if (result.next()) {
+                return result.getFloat(1);
+            }
+            throw new SQLException("Unable To Fetch Balance .Please Try Again.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public synchronized void makeDeposit(float amount) {
+        if (userId == null) {
             System.out.println("User Not Authenticated");
             return;
+        }
+        try (Connection con = DBConfig.getDBConn()) {
+            PreparedStatement stmt = con.prepareStatement(SQLQUERIES.UPDATEBALANCE.getQuery());
+            stmt.setFloat(1, amount);
+            stmt.setLong(2, userId);
+            if (stmt.execute()) {
+                System.out.println("Account Updated With New Balance " + getBalance());
+                Transaction.addTransaction(userId, con, TRANSACTIONTYPE.DEPOSIT, amount);
+                return;
+            }
+            throw new SQLException("Unable To Make Deposit .Please Try Again.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public synchronized void makeWithdraw(float amount) {
+        if (userId == null) {
+            System.out.println("User Not Authenticated");
+            return;
+        }
+        try (Connection con = DBConfig.getDBConn()) {
+            float balance = getBalance();
+            if (balance < amount)
+                throw new SQLException("UN-SUFFICENT BALANCE");
+            PreparedStatement stmt = con.prepareStatement(SQLQUERIES.UPDATEBALANCE.getQuery());
+            stmt.setFloat(1, balance - amount);
+            stmt.setLong(2, userId);
+            if (stmt.execute()) {
+                System.out.println("Account Updated With New Balance " + getBalance());
+                Transaction.addTransaction(userId, con, TRANSACTIONTYPE.WITHDRAWAL, amount);
+                return;
+            }
+            throw new SQLException("Unable To Make Withdraw .Please Try Again.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void displayTransactions() {
+        if (userId == null) {
+            System.out.println("User Not Authenticated");
+            return;
+        }
+        try (Connection con = DBConfig.getDBConn()) {
+            Transaction.viewTransactions(userId, con);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
