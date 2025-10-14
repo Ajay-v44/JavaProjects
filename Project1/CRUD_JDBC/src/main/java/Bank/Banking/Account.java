@@ -8,11 +8,12 @@ import Bank.util.UniqueNumberGenerator;
 import java.sql.*;
 
 public class Account {
+    Long userId;
+
+    String checkUser = "SELECT user_id,username FROM users WHERE phone = ?;";
 
     public void createAccount(CreateAccount input) {
-        Long userId;
 
-        String checkUser = "SELECT user_id FROM users WHERE phone = ?;";
         String addUser = "INSERT INTO users (username, full_name, email, phone)\n" +
                 "VALUES (?, ?, ?, ?)\n" +
                 "RETURNING user_id;";
@@ -28,7 +29,7 @@ public class Account {
                 if (result.next()) {
                     System.out.println("User And Account Already Exists");
                     return;
-                }else {
+                } else {
                     System.out.println("New User");
                 }
             } catch (Exception e) {
@@ -51,7 +52,7 @@ public class Account {
                 throw new RuntimeException(e);
             }
 
-            try(PreparedStatement account = con.prepareStatement(createAccount)){
+            try (PreparedStatement account = con.prepareStatement(createAccount)) {
                 account.setLong(1, userId);
                 account.setString(2, UniqueNumberGenerator.generateUniqueNumber());
                 account.setString(3, String.valueOf(AccountType.CURRENT));
@@ -62,6 +63,33 @@ public class Account {
 
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public boolean logginUser(String phoneNumber) {
+        try (Connection con = DBConfig.getDBConn()) {
+            try (PreparedStatement stmt = con.prepareStatement(checkUser)) {
+                stmt.setString(1, phoneNumber);
+                ResultSet result = stmt.executeQuery();
+                if (result.next()) {
+                    userId = result.getLong(1);
+                    System.out.println("Welcome Mr/Mrs " + result.getString("username"));
+                    return true;
+                } else {
+                    throw new SQLException("User Doesn't Exists");
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void makeDeposit(){
+        if(userId==null){
+            System.out.println("User Not Authenticated");
+            return;
         }
     }
 }
