@@ -15,7 +15,7 @@ public class Transaction {
         statement.setLong(1, userId);
         ResultSet result = statement.executeQuery();
         if (result.next())
-            return result.getLong("id");
+            return result.getLong("account_id");
         else
             throw new SQLException("No ACCOUNT FOUND FOR PARTICULAR USER");
     }
@@ -28,9 +28,9 @@ public class Transaction {
         addTrans.setLong(1, accountId);
         addTrans.setString(2, ts.toString());
         addTrans.setFloat(3, amount);
-
-        ResultSet rs = addTrans.executeQuery();
-        if (rs.next())
+        System.out.println(addTrans);
+        int rowsAffected = addTrans.executeUpdate();
+        if (rowsAffected>0)
             System.out.println("Successfully Added Transaction Log");
         else
             throw new SQLException("Unable To Add Transaction");

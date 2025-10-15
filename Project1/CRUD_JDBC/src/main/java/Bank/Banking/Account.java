@@ -112,9 +112,10 @@ public class Account {
         }
         try (Connection con = DBConfig.getDBConn()) {
             PreparedStatement stmt = con.prepareStatement(SQLQUERIES.UPDATEBALANCE.getQuery());
-            stmt.setFloat(1, amount);
+            stmt.setFloat(1, amount + getBalance());
             stmt.setLong(2, userId);
-            if (stmt.execute()) {
+            int rowAffected = stmt.executeUpdate();
+            if (rowAffected > 0) {
                 System.out.println("Account Updated With New Balance " + getBalance());
                 Transaction.addTransaction(userId, con, TRANSACTIONTYPE.DEPOSIT, amount);
                 return;
@@ -132,17 +133,21 @@ public class Account {
         }
         try (Connection con = DBConfig.getDBConn()) {
             float balance = getBalance();
-            if (balance < amount)
-                throw new SQLException("UN-SUFFICENT BALANCE");
+            if (balance < amount) {
+                System.out.println("UN-SUFFICENT BALANCE");
+                return;
+            }
+            System.out.println(balance);
             PreparedStatement stmt = con.prepareStatement(SQLQUERIES.UPDATEBALANCE.getQuery());
             stmt.setFloat(1, balance - amount);
             stmt.setLong(2, userId);
-            if (stmt.execute()) {
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
                 System.out.println("Account Updated With New Balance " + getBalance());
                 Transaction.addTransaction(userId, con, TRANSACTIONTYPE.WITHDRAWAL, amount);
                 return;
             }
-            throw new SQLException("Unable To Make Withdraw .Please Try Again.");
+            System.out.println("Unable To Make Withdraw .Please Try Again.");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -155,6 +160,45 @@ public class Account {
         }
         try (Connection con = DBConfig.getDBConn()) {
             Transaction.viewTransactions(userId, con);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void getMyDetails() {
+        if (userId == null) {
+            System.out.println("User Not Authenticated");
+            return;
+        }
+        try (Connection con = DBConfig.getDBConn()) {
+            PreparedStatement stmt = con.prepareStatement(SQLQUERIES.GETUSERDETAILS.getQuery());
+            stmt.setLong(1, userId);
+            ResultSet result = stmt.executeQuery();
+            System.out.println();
+            System.out.println("\n--- USER DETAILS FOUND ---");
+
+            // 3. Iterate over the ResultSet using while(result.next())
+            while (result.next()) {
+                // Extract data by the column name defined in your SQL
+                String username = result.getString("username");
+                String fullName = result.getString("full_name");
+                String email = result.getString("email");
+                String phone = result.getString("phone");
+                String accountNumber = result.getString("account_number");
+                String accountType = result.getString("account_type");
+                float balance = result.getFloat("balance");
+
+                // 4. Print the extracted data to System.out (sout)
+                System.out.println("Username: " + username);
+                System.out.println("Full Name: " + fullName);
+                System.out.println("Email: " + email);
+                System.out.println("Phone: " + phone);
+                System.out.println("Account Number: " + accountNumber);
+                System.out.println("Account Type: " + accountType);
+                System.out.println("Current Balance: ₹ " + balance);
+                System.out.println("--------------------------------");
+            }
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
