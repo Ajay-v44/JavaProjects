@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Job Post Details</title>
+    <title>Job Post Details - CareerConnect</title>
     <!-- Add Bootstrap CSS link -->
 
     <link
@@ -16,21 +16,74 @@
             rel="stylesheet"
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
             crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="style1.css">
     <style>
         .card {
-            border: 2px solid #343a40; /* Dark border color */
-            background-color: #f8f9fa; /* Light background color */
+            border: none;
+            background-color: #ffffff;
             margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-radius: 16px;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        /* Modern UI enhancements */
+        .job-details-card {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            padding: 2rem;
+        }
+        
+        .job-details-card:hover {
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .tech-stack-item {
+            background-color: #e9ecef;
+            border-radius: 20px;
+            padding: 5px 15px;
+            margin: 5px;
+            display: inline-block;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        
+        .tech-stack-item:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .job-title {
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
         }
     </style>
-
-    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-warning">
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
     <div class="container">
-        <a class="navbar-brand fs-1 fw-medium" href="#">Telusko Job Portal Web App</a>
+        <a class="navbar-brand fw-bold" href="#"><i class="fas fa-briefcase me-2"></i>CareerConnect</a>
         <button class="navbar-toggler" type="button"
                 data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false"
@@ -40,13 +93,13 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="home">Home</a>
+                    <a class="nav-link" href="home"><i class="fas fa-home me-1"></i> Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="viewalljobs">All Jobs</a>
+                    <a class="nav-link" href="viewalljobs"><i class="fas fa-list me-1"></i> All Jobs</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="https://telusko.com/">Contact</a>
+                    <a class="nav-link" href="#"><i class="fas fa-envelope me-1"></i> Contact</a>
                 </li>
             </ul>
         </div>

@@ -23,10 +23,12 @@ public class JobRepo {
     public List<JobPost> getAllJobs(){
         return jobs;
     }
+    
     public void addJob(JobPost jobPost){
         try(Session session= db.getSession()){
             Transaction transaction=session.beginTransaction();
-//            session.persist(jobPost);
+            // In Hibernate 7.x, we should use merge() instead of save() or persist()
+//            session.merge(jobPost);
             transaction.commit();
         } catch (Exception e) {
             System.out.println(e);

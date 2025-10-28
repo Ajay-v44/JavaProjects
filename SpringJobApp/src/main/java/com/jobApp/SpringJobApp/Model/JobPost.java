@@ -1,37 +1,60 @@
 package com.jobApp.SpringJobApp.Model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
-
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@NoArgsConstructor // Keep this for Spring/JPA to create default instances
 @Entity
 @Table(name = "job_post")
-public class JobPost {
+//@Access(AccessType.PROPERTY)
+public class JobPost implements Serializable {
+    
+    private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Let the DB generate the ID
-    @Column(name ="postId" )
-    private int postId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "postid")
+    private Integer postId;
 
-    @Column(name ="postProfile" )
-    private  String postProfile;
-    @Column(name ="postDesc" )
+    @Column(name = "postprofile")
+    private String postProfile;
+    
+    @Column(name = "postdesc")
     private String postDesc;
-    @Column(name ="reqExperience" )
-    private int reqExperience;
-    @Column(name ="postTechStack" )
-    private List<String> postTechStack;
-    public JobPost(String postProfile, String postDesc, int reqExperience, List<String> postTechStack) {
+    
+    @Column(name = "reqexperience")
+    private Integer reqExperience;
+    
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "job_tech_stack", 
+        joinColumns = @JoinColumn(name = "job_id")
+    )
+    @Column(name = "tech_stack")
+    private List<String> postTechStack = new ArrayList<>();
+    
+    // Default constructor required by JPA
+    public JobPost() {
+    }
+    
+    public JobPost(String postProfile, String postDesc, Integer reqExperience, List<String> postTechStack) {
         this.postProfile = postProfile;
         this.postDesc = postDesc;
         this.reqExperience = reqExperience;
-        this.postTechStack = postTechStack;
+        if (postTechStack != null) {
+            this.postTechStack = postTechStack;
+        }
     }
-
+    
+    // Explicit getters and setters to ensure proper access
+    public Integer getPostId() {
+        return postId;
+    }
+    
+    public void setPostId(Integer postId) {
+        this.postId = postId;
+    }
 }
