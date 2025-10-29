@@ -37,4 +37,9 @@ public class JobControllers {
     public String deleteJob(@PathVariable int jobId){
         return jobServices.deleteJob(jobId);
     }
+
+    @GetMapping("jobPosts/keyword/{keyword}")
+    public List<JobPost> searchByKeyWord(@PathVariable String keyword){
+       return jobServices.search(keyword);
+    }
 }

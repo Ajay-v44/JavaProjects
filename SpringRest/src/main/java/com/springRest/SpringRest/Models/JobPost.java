@@ -1,13 +1,22 @@
 package com.springRest.SpringRest.Models;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
-public class JobPost implements Serializable {
 
+@Entity
+@Table(name = "jobPost")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class JobPost implements Serializable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer postId;
 
     private String postProfile;
@@ -18,18 +27,6 @@ public class JobPost implements Serializable {
 
     private List<String> postTechStack = new ArrayList<>();
 
-    public JobPost() {
-    }
-
-    public JobPost(Integer postId,String postProfile, String postDesc, Integer reqExperience, List<String> postTechStack) {
-        this.postId=postId;
-        this.postProfile = postProfile;
-        this.postDesc = postDesc;
-        this.reqExperience = reqExperience;
-        if (postTechStack != null) {
-            this.postTechStack = postTechStack;
-        }
-    }
 
 }
 
