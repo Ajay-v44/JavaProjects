@@ -1,12 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { FiShoppingCart, FiMenu, FiX } from 'react-icons/fi';
+import { FiShoppingCart, FiMenu, FiX, FiPackage } from 'react-icons/fi';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCart } from '@/lib/cartContext';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { totalItems } = useCart();
 
   return (
     <nav className="bg-white dark:bg-gray-900 shadow-md">
@@ -26,9 +28,19 @@ export default function Navbar() {
             </Link>
             <Link href="/cart" className="relative">
               <FiShoppingCart className="h-6 w-6 text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400" />
-              <span className="absolute -top-2 -right-2 bg-indigo-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                0
-              </span>
+              {totalItems > 0 && (
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-2 -right-2 bg-indigo-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                >
+                  {totalItems}
+                </motion.span>
+              )}
+            </Link>
+            <Link href="/orders" className="text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1">
+              <FiPackage className="h-5 w-5" />
+              <span>Orders</span>
             </Link>
           </div>
 
@@ -73,7 +85,14 @@ export default function Navbar() {
                 className="block text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400"
                 onClick={() => setIsOpen(false)}
               >
-                Cart (0)
+                Cart ({totalItems})
+              </Link>
+              <Link 
+                href="/orders" 
+                className="block text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400"
+                onClick={() => setIsOpen(false)}
+              >
+                Orders
               </Link>
             </div>
           </motion.div>

@@ -1,23 +1,51 @@
 'use client';
 
 import { Product } from '@/lib/api';
-import { motion } from 'framer-motion';
-import { FiShoppingCart } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiShoppingCart, FiCheck } from 'react-icons/fi';
 import Link from 'next/link';
+import { useCart } from '@/lib/cartContext';
+import { useState } from 'react';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const { addToCart } = useCart();
+  const [showToast, setShowToast] = useState(false);
+
+  const handleAddToCart = () => {
+    if (product.productAvailable) {
+      addToCart(product, 1);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
+    }
+  };
+
   return (
     <motion.div
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      whileHover={{ y: -5, transition: { duration: 0.2 } }}
+      whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", transition: { duration: 0.2 } }}
     >
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div 
+            className="absolute top-2 right-2 bg-green-500 text-white px-3 py-2 rounded-lg shadow-lg z-10 flex items-center gap-2"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <FiCheck />
+            <span>Added to cart!</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {product.imageName && (
         <div className="w-full h-48 overflow-hidden">
           <img 
@@ -61,8 +89,13 @@ export default function ProductCard({ product }: ProductCardProps) {
           </Link>
           
           <motion.button
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg flex items-center gap-2"
-            whileTap={{ scale: 0.95 }}
+            className={`${product.productAvailable 
+              ? 'bg-indigo-600 hover:bg-indigo-700' 
+              : 'bg-gray-400 cursor-not-allowed'} 
+              text-white px-3 py-2 rounded-lg flex items-center gap-2`}
+            whileTap={product.productAvailable ? { scale: 0.95 } : {}}
+            onClick={handleAddToCart}
+            disabled={!product.productAvailable}
           >
             <FiShoppingCart />
             <span>Add to Cart</span>

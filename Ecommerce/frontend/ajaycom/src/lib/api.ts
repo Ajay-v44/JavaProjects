@@ -91,4 +91,48 @@ export const productApi = {
   },
 };
 
+export interface OrderItem {
+  productId: number;
+  quantity: number;
+}
+
+export interface OrderRequest {
+  customerName: string;
+  email: string;
+  orderItemRequests: OrderItem[];
+}
+
+export interface OrderItemResponse {
+  productName: string;
+  quantity: number;
+  totalPrice: number;
+}
+
+export interface OrderResponse {
+  orderId: string;
+  customerName: string;
+  email: string;
+  status: string;
+  orderDate: string;
+  items: OrderItemResponse[];
+}
+
+export interface OrderSummary extends OrderResponse {
+  itemCount: number;
+}
+
+export const orderApi = {
+  // Place a new order
+  placeOrder: async (orderRequest: OrderRequest): Promise<OrderResponse> => {
+    const response = await api.post('/placeOrder', orderRequest);
+    return response.data;
+  },
+
+  // Get all order summaries
+  getOrderSummaries: async (): Promise<OrderSummary[]> => {
+    const response = await api.get('/getOrderSummaries');
+    return response.data;
+  },
+};
+
 export default api;

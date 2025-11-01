@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react';
 import { Product, productApi } from '@/lib/api';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { FiArrowLeft, FiShoppingCart, FiEdit, FiTrash } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiArrowLeft, FiShoppingCart, FiEdit, FiTrash, FiCheck } from 'react-icons/fi';
 import Link from 'next/link';
 import { use } from 'react';
+import { useCart } from '@/lib/cartContext';
 
 export default function ProductDetail({ params }: { params: { id: string } }) {
   // Unwrap the params Promise using React.use()
@@ -14,8 +15,18 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
   const productId = resolvedParams.id;
   
   const router = useRouter();
+  const { addToCart } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showToast, setShowToast] = useState(false);
+  
+  const handleAddToCart = () => {
+    if (product && product.productAvailable) {
+      addToCart(product, 1);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
+    }
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -78,7 +89,22 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
         </motion.button>
       </Link>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden p-6 relative">
+        {/* Toast Notification */}
+        <AnimatePresence>
+          {showToast && (
+            <motion.div 
+              className="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-10 flex items-center gap-2"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <FiCheck />
+              <span>Added to cart!</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
         <div className="flex flex-col md:flex-row gap-8">
           <div className="w-full md:w-1/2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center p-8" style={{ height: '400px' }}>
             {product.imageName ? (
@@ -165,12 +191,17 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
 
               <div className="mt-6">
                 <motion.button
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-lg flex items-center justify-center gap-2"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  className={`w-full ${product.productAvailable 
+                    ? 'bg-indigo-600 hover:bg-indigo-700' 
+                    : 'bg-gray-400 cursor-not-allowed'} 
+                    text-white py-3 px-6 rounded-lg flex items-center justify-center gap-2`}
+                  whileHover={product.productAvailable ? { scale: 1.02 } : {}}
+                  whileTap={product.productAvailable ? { scale: 0.98 } : {}}
+                  onClick={handleAddToCart}
+                  disabled={!product.productAvailable}
                 >
                   <FiShoppingCart />
-                  <span>Add to Cart</span>
+                  <span>{product.productAvailable ? 'Add to Cart' : 'Out of Stock'}</span>
                 </motion.button>
               </div>
             </motion.div>
