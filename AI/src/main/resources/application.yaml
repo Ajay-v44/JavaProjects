@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: AI
+  config:
+    import: optional:file:.env[.properties]
+  ai:
+    openai:
+      api-key: ${OPENAI_KEY}
+      chat:
+        options:
+          model: gpt-4o
