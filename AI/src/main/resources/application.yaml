@@ -9,3 +9,8 @@ spring:
       chat:
         options:
           model: gpt-4o
+    ollama:
+      enabled: true
+      chat:
+        model: gemma3:1b
+

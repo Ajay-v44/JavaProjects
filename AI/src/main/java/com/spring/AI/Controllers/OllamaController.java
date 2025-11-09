@@ -1,7 +1,8 @@
 package com.spring.AI.Controllers;
 
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.ollama.OllamaChatModel;
+import org.springframework.context.annotation.Primary;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,17 +12,13 @@ import java.util.Map;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/ai")
-public class AiController {
-
+@RequestMapping("/ai/ollama")
+public class OllamaController {
     private final ChatClient chatClient;
 
-    public AiController(OpenAiChatModel chatModel) {
-        chatClient = ChatClient.create(chatModel);
+    public OllamaController(OllamaChatModel chatModel) {
+        this.chatClient = ChatClient.create(chatModel);
     }
-//    public AiController(ChatClient.Builder chatClientBuilder) {
-//        this.chatClient = chatClientBuilder.build();
-//    }
 
     @GetMapping("/ask")
     public Map<String, String> completion(@RequestParam(value = "message", defaultValue = "Tell me a joke") String message) {
