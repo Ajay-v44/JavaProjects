@@ -3,13 +3,20 @@ package com.spring.AI.Controllers;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.ollama.OllamaChatModel;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -17,9 +24,13 @@ import java.util.Objects;
 @RequestMapping("/ai/ollama")
 public class OllamaController {
     private final ChatClient chatClient;
+    private final EmbeddingModel embeddingModel;
+    @Autowired
+    public VectorStore vectorStore;
 
-    public OllamaController(OllamaChatModel chatModel) {
+    public OllamaController(@Qualifier("ollamaEmbeddingModel") EmbeddingModel embeddingModel , OllamaChatModel chatModel) {
         this.chatClient = ChatClient.create(chatModel);
+        this.embeddingModel=embeddingModel;
     }
 
     @GetMapping("/ask")
@@ -58,5 +69,20 @@ public class OllamaController {
             System.out.println(e.getMessage());
             return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Exception\", \"Please Try Again");
         }
+    }
+
+    @PostMapping("/embedd")
+    public ResponseEntity<float[]> embeddText(@RequestParam String text){
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(embeddingModel.embed(text));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    @PostMapping("/api/product")
+    public List<Document> getProducts(@RequestParam String text) {
+        //  return vectorStore.similaritySearch(text);
+        return vectorStore.similaritySearch(SearchRequest.builder().query(text).topK(2).build());
     }
 }
