@@ -1,6 +1,7 @@
 package com.spring.AI.Controllers;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
@@ -15,7 +16,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -80,9 +80,17 @@ public class OllamaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-    @PostMapping("/api/product")
+    @PostMapping("/product")
     public List<Document> getProducts(@RequestParam String text) {
         //  return vectorStore.similaritySearch(text);
         return vectorStore.similaritySearch(SearchRequest.builder().query(text).topK(2).build());
+    }
+    @PostMapping("/ask/rag")
+    public String askQuestion(@RequestParam String query){
+        return chatClient
+                .prompt(query)
+                .advisors(new QuestionAnswerAdvisor(vectorStore))
+                .call()
+                .content();
     }
 }
