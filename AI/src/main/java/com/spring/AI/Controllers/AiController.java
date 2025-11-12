@@ -8,7 +8,9 @@ import org.springframework.ai.openai.OpenAiImageModel;
 import org.springframework.ai.openai.OpenAiImageOptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 import java.util.Objects;
@@ -54,5 +56,17 @@ public class AiController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @PostMapping("/image/describe")
+    public String descImage(@RequestParam String query, @RequestParam MultipartFile file) {
+
+        return chatClient.prompt()
+                .user(us -> us.text(query)
+                        .media(MimeTypeUtils.IMAGE_JPEG, file.getResource()))
+                .call()
+                .content();
+
+
     }
 }
