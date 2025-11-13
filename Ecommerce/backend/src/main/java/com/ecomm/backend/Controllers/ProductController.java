@@ -69,6 +69,23 @@ public class ProductController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @PostMapping("/generate_description")
+    public ResponseEntity<String> generateDescription(@RequestParam String name,@RequestParam String category){
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(productServices.generateDescription(name,category));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/generate_image")
+    public ResponseEntity<?> generateImage(@RequestParam String name,@RequestParam String category,@RequestParam String description){
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(productServices.generateImage(name,category,description));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
     @GetMapping("/image/{id}")
     public ResponseEntity<byte[]> getProductImage(@PathVariable int id){
         try{
