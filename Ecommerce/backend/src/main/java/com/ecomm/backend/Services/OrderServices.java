@@ -12,6 +12,8 @@ import com.ecomm.backend.Models.dto.OrderSummaryDTO;
 import com.ecomm.backend.Repositories.OrderRepository;
 import com.ecomm.backend.Repositories.ProductRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -32,9 +35,12 @@ public class OrderServices {
 
     @Autowired
     OrderRepository orderRepository;
-    
+
     @Autowired
     OrderMapper orderMapper;
+
+    @Autowired
+    VectorStore vectorStore;
 
     @Transactional
     public OrderResponse placeOrder(OrderRequest orderRequest) {
@@ -55,6 +61,40 @@ public class OrderServices {
             product.setStockQuantity(product.getStockQuantity() - itemRequest.quantity());
             productRepository.save(product);
 
+//            Embeding
+            String filter = String.format("productId == %s", String.valueOf(product.getId()));
+            vectorStore.delete(filter);
+
+            String updatedContent = String.format("""
+                            
+                            Product Name: %s
+                            Description: %s
+                            Brand: %s
+                            Category: %s
+                            Price: %.2f
+                            Release Date: %s
+                            Available: %s
+                            Stock: %s
+                            """,
+                    product.getName(),
+                    product.getDescription(),
+                    product.getBrand(),
+                    product.getCategory(),
+                    product.getPrice(),
+                    product.getReleaseDate(),
+                    product.isProductAvailable(),
+                    product.getStockQuantity()
+            );
+
+            Document UpdatedDoc = new Document(
+                    UUID.randomUUID().toString(),
+                    updatedContent,
+                    Map.of("productId", String.valueOf(product.getId()))
+            );
+
+            vectorStore.add(List.of(UpdatedDoc));
+
+
 //            Order Items
             OrderItem orderItem = OrderItem.builder()
                     .product(product)
@@ -66,6 +106,31 @@ public class OrderServices {
         }
         order.setOrderItems(orderItems);
         Order saveOrder = orderRepository.save(order);
+
+
+        StringBuilder content = new StringBuilder();
+        content.append("Order Summary: \n");
+        content.append("Order  ID: ").append(saveOrder.getOrderId()).append("\n");
+        content.append("Customer: ").append(saveOrder.getCustomerName()).append("\n");
+        content.append("Email: ").append(saveOrder.getEmail()).append("\n");
+        content.append("Date: ").append(saveOrder.getOrderDate()).append("\n");
+        content.append("Status: ").append(saveOrder.getStatus()).append("\n");
+        content.append("Products: \n");
+
+        for (OrderItem orderItem : saveOrder.getOrderItems()) {
+            content.append("- ").append(orderItem.getProduct().getName())
+                    .append(" x ").append(orderItem.getQuantity())
+                    .append(" = ").append(orderItem.getTotalPrice()).append("\n");
+        }
+
+        Document document = new Document(
+                UUID.randomUUID().toString(),
+                content.toString(),
+                Map.of("orderId", saveOrder.getOrderId())
+        );
+
+        vectorStore.add(List.of(document));
+
 
         List<OrderItemResponse> orderItemResponse = new ArrayList<>();
 
@@ -111,25 +176,25 @@ public class OrderServices {
         return orderResponses;
     }
 
-    public List<OrderResponse> findAllOrders(){
+    public List<OrderResponse> findAllOrders() {
         List<Order> orders = orderRepository.findAllWithItemsAndProducts();
-         return orders.stream()
-        .map(order -> new OrderResponse(
-            order.getOrderId(),
-            order.getCustomerName(),
-            order.getEmail(),
-            order.getStatus(),
-            order.getOrderDate(),
-            order.getOrderItems().stream()
-                .map(item -> new OrderItemResponse(
-                    item.getProduct().getName(),
-                    item.getQuantity(),
-                    item.getTotalPrice()))
-                .collect(Collectors.toList())
-        ))
-        .collect(Collectors.toList());
+        return orders.stream()
+                .map(order -> new OrderResponse(
+                        order.getOrderId(),
+                        order.getCustomerName(),
+                        order.getEmail(),
+                        order.getStatus(),
+                        order.getOrderDate(),
+                        order.getOrderItems().stream()
+                                .map(item -> new OrderItemResponse(
+                                        item.getProduct().getName(),
+                                        item.getQuantity(),
+                                        item.getTotalPrice()))
+                                .collect(Collectors.toList())
+                ))
+                .collect(Collectors.toList());
     }
-    
+
     public List<OrderSummaryDTO> getAllOrderSummaries() {
         List<Order> orders = orderRepository.findAll();
         return orderMapper.ordersToOrderSummaryDTOs(orders);
