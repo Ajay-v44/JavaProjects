@@ -1,13 +1,17 @@
 package com.microservices.QuizzApp.Models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigInteger;
 
 @Data
 @Entity
 @Table(name = "questions")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Questions {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

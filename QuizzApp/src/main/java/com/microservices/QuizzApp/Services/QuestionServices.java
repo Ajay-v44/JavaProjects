@@ -1,7 +1,9 @@
 package com.microservices.QuizzApp.Services;
 
+import com.microservices.QuizzApp.DTO.AddQuestion;
 import com.microservices.QuizzApp.Models.Questions;
 import com.microservices.QuizzApp.Repositories.QuestionRepo;
+import com.microservices.QuizzApp.util.QuestionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.repository.query.FluentQuery;
@@ -13,6 +15,8 @@ import java.util.List;
 public class QuestionServices {
     @Autowired
     QuestionRepo questionRepo;
+    @Autowired
+    QuestionMapper questionMapper;
 
     public List<Questions> getAllQuestions() {
         return questionRepo.findAll();
@@ -23,5 +27,10 @@ public class QuestionServices {
         prob.setCategory(category);
         Example<Questions> example=Example.of(prob);
         return questionRepo.findBy(example, FluentQuery.FetchableFluentQuery::all);
+    }
+
+    public String addQuestion(AddQuestion question) {
+        questionRepo.save(questionMapper.toEntity(question));
+        return "Successfully Added";
     }
 }
