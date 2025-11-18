@@ -1,6 +1,8 @@
 package com.microservices.QuizzApp.Services;
 
+import com.microservices.QuizzApp.DTO.CalculateScore;
 import com.microservices.QuizzApp.DTO.QuestionResponse;
+import com.microservices.QuizzApp.Models.Questions;
 import com.microservices.QuizzApp.Models.Quiz;
 import com.microservices.QuizzApp.Repositories.QuestionRepo;
 import com.microservices.QuizzApp.Repositories.QuizRepo;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class QuizService {
@@ -38,5 +41,15 @@ public class QuizService {
         if (quiz==null)
             return null;
         return questionMapper.quizListToQuestionResponseList(quiz.getQuestions());
+    }
+
+    public Integer submitQuiz(List<CalculateScore> calculateScores) {
+        int score=0;
+        for (CalculateScore calculateScore:calculateScores){
+            Questions questions=questionRepo.findById(calculateScore.id()).orElse(null);
+            if (questions!=null&& Objects.equals(questions.getRightAnswer(), calculateScore.answer()))
+                score++;
+        }
+        return score;
     }
 }

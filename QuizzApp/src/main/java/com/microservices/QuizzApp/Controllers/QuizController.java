@@ -1,5 +1,6 @@
 package com.microservices.QuizzApp.Controllers;
 
+import com.microservices.QuizzApp.DTO.CalculateScore;
 import com.microservices.QuizzApp.DTO.QuestionResponse;
 import com.microservices.QuizzApp.Models.Quiz;
 import com.microservices.QuizzApp.Services.QuizService;
@@ -39,6 +40,14 @@ public class QuizController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(quizService.getQuestionByIdV2(id));
         } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @PostMapping("/v1/submitQuiz")
+    public ResponseEntity<Integer> submitQuiz(@RequestBody List<CalculateScore> calculateScores){
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(quizService.submitQuiz(calculateScores));
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
