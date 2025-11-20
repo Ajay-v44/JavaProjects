@@ -49,7 +49,7 @@ public class QuestionController {
     }
 
     @GetMapping("/generateQuestion")
-    public ResponseEntity<List<Integer>> getQuestionsByCategory(String category, Integer limit) {
+    public ResponseEntity<List<Integer>> getQuestionsByCategory(@RequestParam String category, @RequestParam Integer limit) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(questionServices.getQuestionsByCategory(category, limit));
         } catch (Exception e) {
@@ -58,7 +58,7 @@ public class QuestionController {
     }
 
     @GetMapping("/getQuestions")
-    public ResponseEntity<List<QuestionResponse>> getQuestions(@RequestParam int[] questionIds) {
+    public ResponseEntity<List<QuestionResponse>> getQuestions(@RequestParam List<Integer> questionIds) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(questionServices.getQuestions(questionIds));
         } catch (Exception e) {

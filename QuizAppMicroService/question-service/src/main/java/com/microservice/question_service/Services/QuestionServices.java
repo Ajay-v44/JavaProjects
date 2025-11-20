@@ -43,7 +43,7 @@ public class QuestionServices {
         return questionRepo.findRandomQuestionsByCategory(category, limit);
     }
 
-    public List<QuestionResponse> getQuestions(int[] questionIds) {
+    public List<QuestionResponse> getQuestions(List<Integer> questionIds) {
         List<Questions> questions = new ArrayList<>();
         for (int id : questionIds)
             questions.add(questionRepo.findById(id).get());

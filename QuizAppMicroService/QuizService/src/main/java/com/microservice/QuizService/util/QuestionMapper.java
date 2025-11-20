@@ -17,7 +17,7 @@ public interface QuestionMapper {
     @Mapping(target = "option3", source = "option3")
     @Mapping(target = "option4", source = "option4")
     QuestionResponse quizToQuestionResponse(Questions quiz);
-    List<QuestionResponse> quizListToQuestionResponseList(List<Questions> quizzes);
+    List<QuestionResponse> quizListToQuestionResponseList(List<QuestionResponse> quizzes);
 
 }
 
