@@ -9,6 +9,7 @@ import com.microservice.question_service.Models.Category;
 import com.microservice.question_service.Models.Questions;
 import com.microservice.question_service.Services.QuestionServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +21,14 @@ import java.util.List;
 public class QuestionController {
     @Autowired
     QuestionServices questionServices;
+    @Autowired
+    Environment env;
 
     @GetMapping("/getAll")
     public ResponseEntity<List<Questions>> getAllQuestions() {
         try {
+            System.out.println("getAll");
+            System.out.println(env.getProperty("local.server.port"));
             return ResponseEntity.status(HttpStatus.OK).body(questionServices.getAllQuestions());
         } catch (Exception e) {
             throw new RuntimeException(e);
